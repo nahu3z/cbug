@@ -15,6 +15,6 @@ end)
 
 addEventHandler("onResourceStop", resourceRoot, function()
     for glitch, isEnabled in pairs(defaultSettings) do
-        setGlitchEnabled(glitch, not isEnabled)
+        setGlitchEnabled(glitch, false)
     end
 end)
