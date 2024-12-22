@@ -38,4 +38,4 @@ bindKey("c", "down", function()
 
 	setPedWeaponSlot(localPlayer, 0)
 	setPedWeaponSlot(localPlayer, currentSlot)
-)
+end)
