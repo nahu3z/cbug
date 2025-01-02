@@ -1,4 +1,12 @@
 <meta>
+    <min_mta_version server="1.6.0"></min_mta_version>
+    <info author="NahuEz" name="C-BUG" type="script"/>
+
     <script type="server" src="server.lua"/>
     <script type="client" src="client.lua"/>
+
+    <settings>
+        <setting name="*autoreload" value="true"/>
+        <setting name="*autocbug" value="false"/>
+    </settings>
 </meta>
