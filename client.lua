@@ -13,6 +13,9 @@ local currentWeapon = getPedWeapon(localPlayer)
 
 -- Event handler for auto-reload
 addEventHandler("onClientPlayerWeaponFire", localPlayer, function(weaponID)
+	if not isAutoReloadEnabled then
+		return false
+	end
 
 	if AUTO_RELOAD_WEAPONS[weaponID] then
 		setPedWeaponSlot(localPlayer, 0)
