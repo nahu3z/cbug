@@ -21,7 +21,7 @@ end
 
 local function toggleAutoCbug(value)
     for weaponID, _ in pairs(AUTO_CBUG_WEAPONS) do
-        local time = value == "true" and 0 or getOriginalWeaponProperty(weaponID, "pro", "anim_breakout_time")
+        local time = value and 0 or getOriginalWeaponProperty(weaponID, "pro", "anim_breakout_time")
         for _, skill in ipairs({ "poor", "std", "pro" }) do
             setWeaponProperty(weaponID, skill, "anim_breakout_time", time)
         end
