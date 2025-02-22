@@ -11,11 +11,11 @@ local AUTO_CBUG_WEAPONS = {
     [24] = true
 }
 
-local function sendSetting(value)
+local function sendSetting(value, player)
     if value == nil then
         value = get("autoreload")
     end
-    triggerClientEvent(getElementsByType("player"), "onClientSettingChange", resourceRoot, value)
+    triggerClientEvent(player or getElementsByType("player"), "onClientSettingChange", resourceRoot, value)
     setGlitchEnabled("quickreload", value)
 end
 
@@ -28,13 +28,17 @@ local function toggleAutoCbug(value)
     end
 end
 
+addEventHandler("onPlayerResourceStart", root, function(startedResource)
+    if startedResource ~= resource then
+        return false
+    end
+    sendSetting(get("autoreload"), source)
+end)
+
 addEventHandler("onResourceStart", resourceRoot, function()
     for glitch, isEnabled in pairs(defaultSettings) do
         setGlitchEnabled(glitch, isEnabled)
     end
-
-    setTimer(sendSetting, 200, 1)
-
     toggleAutoCbug(get("autocbug"))
 end)
 
@@ -46,7 +50,6 @@ addEventHandler("onResourceStop", resourceRoot, function()
 end)
 
 addEventHandler("onSettingChange", root, function(setting, _, value)
-    -- Exit if the resource is not the same as this resource.
 	local resourceSetting = setting:sub(2, 5)
     local resourceName = getResourceName(resource)
 	if resourceSetting ~= resourceName then
