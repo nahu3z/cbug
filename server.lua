@@ -136,6 +136,17 @@ addEventHandler("onResourceStart", resourceRoot,
     end
 )
 
+addEventHandler("onResourceStop", resourceRoot,
+    function()
+        for _, entry in ipairs(DEFAULT_SETTINGS) do
+            local glitch = entry[2]
+            if glitch then
+                setGlitchEnabled(glitch, false)
+            end
+        end
+    end
+)
+
 addEventHandler("onSettingChange", root,
     function(setting, _, value)
         SETTING_SET(setting, value)
