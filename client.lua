@@ -1,4 +1,4 @@
-local isAutoReloadEnabled = false
+local isAutoReloadEnabled = true
 
 local AUTO_RELOAD_WEAPONS = {
     [23] = true,
@@ -42,8 +42,8 @@ bindKey("c", "down", function()
 	setPedWeaponSlot(localPlayer, currentSlot)
 end)
 
-addEvent("onClientSettingChange", true)
-addEventHandler("onClientSettingChange", root, function(value)
+addEvent("onClientSettingReceive", true)
+addEventHandler("onClientSettingReceive", root, function(value)
 	if source ~= resourceRoot then
 		return false
 	end

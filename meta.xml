@@ -1,12 +1,20 @@
 <meta>
     <min_mta_version server="1.6.0"></min_mta_version>
-    <info author="NahuEz" name="C-BUG" type="script"/>
+    <info author="NahuEz" name="cbug" version="1.0" type="script"/>
 
     <script type="server" src="server.lua"/>
     <script type="client" src="client.lua"/>
 
     <settings>
-        <setting name="*autoreload" value="true"/>
-        <setting name="*autocbug" value="false"/>
+        <setting name="*autocbug" value="[false]" group="Features"/>
+        <setting name="*autoreload" value="[true]" group="Features"/>
+
+        <setting name="*Crouch Bug" value="[true]" group="Glitches"/>
+        <setting name="*Fast Fire" value="[true]" group="Glitches"/>
+        <setting name="*Fast Move" value="[true]" group="Glitches"/>
+        <setting name="*Fast Sprint" value="[true]" group="Glitches"/>
+        <setting name="*Quick Fire" value="[true]" group="Glitches"/>
+        <setting name="*Quick Reload" value="[true]"  group="Glitches"/>
+        <setting name="*Quick Stand" value="[true]" group="Glitches"/>
     </settings>
 </meta>
