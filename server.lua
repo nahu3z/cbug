@@ -1,15 +1,15 @@
 local SETTINGS = {}
 local LISTENERS = {}
 local DEFAULT_SETTINGS = {
-    {"autocbug"},
-    {"autoreload"},
-    {"Crouch Bug", "crouchbug"},
-    {"Fast Fire", "fastfire"},
-    {"Fast Move", "fastmove"},
-    {"Fast Sprint", "fastsprint"},
-    {"Quick Fire", "quickfire"},
-    {"Quick Reload", "quickreload"},
-    {"Quick Stand", "quickstand"}
+    ["Auto C-Bug"] = "autocbug",
+    ["Auto Reload"] = "autoreload",
+    ["Crouch Bug"] = "crouchbug",
+    ["Fast Fire"] = "fastfire",
+    ["Fast Move"] = "fastmove",
+    ["Fast Sprint"] = "fastsprint",
+    ["Quick Fire"] = "quickfire",
+    ["Quick Reload"] = "quickreload",
+    ["Quick Stand"] = "quickstand",
 }
 
 local AUTO_CBUG_WEAPONS = {
@@ -17,19 +17,21 @@ local AUTO_CBUG_WEAPONS = {
     [24] = true
 }
 
+local BOOLEANS = {
+    ['["true"]'] = true,
+    ['[true]'] = true,
+    ['true'] = true,
+}
+
 local function GET_LISTENERS(tbl)
 	local array = {}
 	local indexID = 0
 
 	for element, _ in pairs(tbl) do
-		local validElement = isElement(element)
+		local newIndexID = (indexID + 1)
 
-		if (validElement) then
-			local newIndexID = (indexID + 1)
-
-			array[indexID] = element
-			indexID = newIndexID
-		end
+		array[indexID] = element
+		indexID = newIndexID
 	end
 
 	return array
@@ -43,10 +45,9 @@ local function TOGGLE_AUTO_CBUG(value)
     local ANIM_BREAKOUT_TIME = "anim_breakout_time"
     local skills = {"poor", "std", "pro"}
 
-    for weaponID, _ in pairs(AUTO_CBUG_WEAPONS) do
-        local breakoutTime = value and 0 or getOriginalWeaponProperty(weaponID, "pro", ANIM_BREAKOUT_TIME)
-
-        for _, skill in ipairs(skills) do
+    for _, skill in ipairs(skills) do
+        for weaponID, _ in pairs(AUTO_CBUG_WEAPONS) do
+            local breakoutTime = value and 0 or getOriginalWeaponProperty(weaponID, skill, ANIM_BREAKOUT_TIME)
             setWeaponProperty(weaponID, skill, ANIM_BREAKOUT_TIME, breakoutTime)
         end
     end
@@ -58,7 +59,7 @@ local function SETTING_BOOLEANIZE(value)
     end
 
     if type(value) == "string" then
-        return value == '[true]' or value == '["true"]' or value == 'true'
+        return BOOLEANS[value] or false
     end
 end
 
@@ -72,45 +73,41 @@ end
 
 local function SETTING_SET(setting, value)
     if not setting or type(setting) ~= "string" then
-        return
+        return false
     end
-    local dot = setting:find("%.")
 
-    if dot and type(dot) == "number" then
+    local dot = setting:find("%.")
+    if dot then
         setting = setting:sub(dot + 1)
     end
 
-    local foundSetting
-
-    for _, entry in ipairs(DEFAULT_SETTINGS) do
-        if entry[1] == setting then
-            foundSetting = entry
-            break
-        end
-    end
-
+    local foundSetting = DEFAULT_SETTINGS[setting]
     if not foundSetting then
-        return
+        return false
     end
 
-    local glitch = foundSetting[2]
-    
     value = SETTING_BOOLEANIZE(value)
-    SETTINGS[setting] = value
+    SETTINGS[foundSetting] = value
 
-    if setting == "autocbug" then
+    if foundSetting == "autocbug" then
         TOGGLE_AUTO_CBUG(value)
-        return
+        return true
     end
 
-    if glitch then
-        setGlitchEnabled(glitch, value)
+    if foundSetting ~= "feature" and foundSetting ~= "quickreload" then
+        setGlitchEnabled(foundSetting, value)
     end
 
-    if setting == "autoreload" or setting == "Quick Reload" then
-        setGlitchEnabled("quickreload", value)
+    if foundSetting == "autoreload" then
         SEND_SETTING(value, GET_LISTENERS(LISTENERS))
-        SETTINGS["autoreload"] = value
+        if value then
+            setGlitchEnabled("quickreload", true)
+        end
+    elseif foundSetting == "quickreload" then
+        setGlitchEnabled(foundSetting, value)
+        if SETTINGS["autoreload"] then
+            SEND_SETTING(value, GET_LISTENERS(LISTENERS))
+        end
     end
 end
 
@@ -120,34 +117,35 @@ addEventHandler("onPlayerResourceStart", root, function(startedResource)
     end
     LISTENERS[source] = true
     local quickreload = get("Quick Reload")
-    local autoreload = get("autoreload")
-    local value = SETTING_BOOLEANIZE(quickreload) == true and SETTING_BOOLEANIZE(autoreload) == true
+    local autoreload = get("Auto Reload")
+    local value = SETTING_BOOLEANIZE(quickreload) and SETTING_BOOLEANIZE(autoreload)
     triggerClientEvent(source, "onClientSettingReceive", resourceRoot, value)
 end)
 
 addEventHandler("onResourceStart", resourceRoot,
     function()
-        for _, entry in ipairs(DEFAULT_SETTINGS) do
-            local setting = entry[1]
+        for setting, glitch in pairs(DEFAULT_SETTINGS) do
             local value = get(setting)
-
             SETTING_SET(setting, value)
         end
     end
 )
 
+addEventHandler("onPlayerQuit", root, function()
+    LISTENERS[source] = nil
+end)
+
 addEventHandler("onResourceStop", resourceRoot,
     function()
-        for _, entry in ipairs(DEFAULT_SETTINGS) do
-            local glitch = entry[2]
-            if glitch then
+        for setting, glitch in pairs(DEFAULT_SETTINGS) do
+            if glitch ~= "feature" then
                 setGlitchEnabled(glitch, false)
             end
         end
     end
 )
 
-addEventHandler("onSettingChange", root,
+addEventHandler("onSettingChange", resourceRoot,
     function(setting, _, value)
         SETTING_SET(setting, value)
     end

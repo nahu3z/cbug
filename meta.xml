@@ -6,8 +6,8 @@
     <script type="client" src="client.lua"/>
 
     <settings>
-        <setting name="*autocbug" value="[false]" group="Features"/>
-        <setting name="*autoreload" value="[true]" group="Features"/>
+        <setting name="*Auto C-Bug" value="[false]" group="Features"/>
+        <setting name="*Auto Reload" value="[true]" group="Features"/>
 
         <setting name="*Crouch Bug" value="[true]" group="Glitches"/>
         <setting name="*Fast Fire" value="[true]" group="Glitches"/>
