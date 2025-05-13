@@ -14,7 +14,7 @@ local DEFAULT_SETTINGS = {
 
 local AUTO_CBUG_WEAPONS = {
     [23] = true,
-    [24] = true
+    [24] = true,
 }
 
 local BOOLEANS = {
