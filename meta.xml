@@ -13,7 +13,8 @@
         <setting name="*Fast Fire" value="[true]" group="Glitches"/>
         <setting name="*Fast Move" value="[true]" group="Glitches"/>
         <setting name="*Fast Sprint" value="[true]" group="Glitches"/>
-        <setting name="*Quick Fire" value="[true]" group="Glitches"/>
+        <setting name="*High Close Range Damage" value="[false]" group="Glitches"/>
+        <setting name="*Hit Anim" value="[false]" group="Glitches"/>
         <setting name="*Quick Reload" value="[true]"  group="Glitches"/>
         <setting name="*Quick Stand" value="[true]" group="Glitches"/>
     </settings>

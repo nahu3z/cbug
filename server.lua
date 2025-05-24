@@ -7,7 +7,8 @@ local DEFAULT_SETTINGS = {
     ["Fast Fire"] = "fastfire",
     ["Fast Move"] = "fastmove",
     ["Fast Sprint"] = "fastsprint",
-    ["Quick Fire"] = "quickfire",
+    ["High Close Range Damage"] = "highcloserangedamage",
+    ["Hit Anim"] = "hitanim",
     ["Quick Reload"] = "quickreload",
     ["Quick Stand"] = "quickstand",
 }
