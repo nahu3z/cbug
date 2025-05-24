@@ -74,6 +74,9 @@ local function SETTING_SET(setting, value)
     end
 
     local foundSetting = DEFAULT_SETTINGS[setting]
+    if not foundSetting then
+        return false
+    end
 
     value = SETTING_BOOLEANIZE(value)
     SETTINGS[foundSetting] = value
