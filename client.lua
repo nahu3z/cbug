@@ -31,10 +31,6 @@ bindKey("c", "down", function()
 end)
 
 addEvent("onClientSettingReceive", true)
-addEventHandler("onClientSettingReceive", root, function(value)
-	if source ~= resourceRoot then
-		return false
-	end
-
+addEventHandler("onClientSettingReceive", resourceRoot, function(value)
 	isAutoReloadEnabled = value
 end)

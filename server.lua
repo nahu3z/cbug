@@ -30,7 +30,7 @@ local function GET_LISTENERS(tbl)
 	for element, _ in pairs(tbl) do
 		local newIndexID = (indexID + 1)
 
-		array[indexID] = element
+        array[newIndexID] = element
 		indexID = newIndexID
 	end
 
@@ -63,14 +63,6 @@ local function SETTING_BOOLEANIZE(value)
     end
 end
 
-local function SETTING_GET(setting)
-    if not setting or type(setting) ~= "string" then
-        return
-    end
-
-    return SETTINGS[setting]
-end
-
 local function SETTING_SET(setting, value)
     if not setting or type(setting) ~= "string" then
         return false
@@ -82,9 +74,6 @@ local function SETTING_SET(setting, value)
     end
 
     local foundSetting = DEFAULT_SETTINGS[setting]
-    if not foundSetting then
-        return false
-    end
 
     value = SETTING_BOOLEANIZE(value)
     SETTINGS[foundSetting] = value
@@ -94,20 +83,23 @@ local function SETTING_SET(setting, value)
         return true
     end
 
-    if foundSetting ~= "feature" and foundSetting ~= "quickreload" then
-        setGlitchEnabled(foundSetting, value)
-    end
-
+    local handle = false
     if foundSetting == "autoreload" then
-        SEND_SETTING(value, GET_LISTENERS(LISTENERS))
         if value then
             setGlitchEnabled("quickreload", true)
         end
+        SEND_SETTING(value, GET_LISTENERS(LISTENERS))
+        handle = true
     elseif foundSetting == "quickreload" then
-        setGlitchEnabled(foundSetting, value)
         if SETTINGS["autoreload"] then
             SEND_SETTING(value, GET_LISTENERS(LISTENERS))
         end
+        setGlitchEnabled(foundSetting, value)
+        handle = true
+    end
+
+    if not handle then
+        setGlitchEnabled(foundSetting, value)
     end
 end
 
@@ -116,37 +108,27 @@ addEventHandler("onPlayerResourceStart", root, function(startedResource)
         return false
     end
     LISTENERS[source] = true
-    local quickreload = get("Quick Reload")
-    local autoreload = get("Auto Reload")
-    local value = SETTING_BOOLEANIZE(quickreload) and SETTING_BOOLEANIZE(autoreload)
+    local value = SETTINGS["quickreload"] and SETTINGS["autoreload"]
     triggerClientEvent(source, "onClientSettingReceive", resourceRoot, value)
 end)
 
-addEventHandler("onResourceStart", resourceRoot,
-    function()
-        for setting, glitch in pairs(DEFAULT_SETTINGS) do
-            local value = get(setting)
-            SETTING_SET(setting, value)
-        end
+addEventHandler("onResourceStart", resourceRoot, function()
+    for setting, glitch in pairs(DEFAULT_SETTINGS) do
+        local value = get(setting)
+        SETTING_SET(setting, value)
     end
-)
+end)
 
 addEventHandler("onPlayerQuit", root, function()
     LISTENERS[source] = nil
 end)
 
-addEventHandler("onResourceStop", resourceRoot,
-    function()
-        for setting, glitch in pairs(DEFAULT_SETTINGS) do
-            if glitch ~= "feature" then
-                setGlitchEnabled(glitch, false)
-            end
-        end
+addEventHandler("onResourceStop", resourceRoot, function()
+    for setting, glitch in pairs(DEFAULT_SETTINGS) do
+        setGlitchEnabled(glitch, false)
     end
-)
+end)
 
-addEventHandler("onSettingChange", resourceRoot,
-    function(setting, _, value)
-        SETTING_SET(setting, value)
-    end
-)
+addEventHandler("onSettingChange", resourceRoot, function(setting, _, value)
+    SETTING_SET(setting, value)
+end)
