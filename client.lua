@@ -10,7 +10,7 @@ local currentSlot = getPedWeaponSlot(localPlayer)
 local currentWeapon = getPedWeapon(localPlayer)
 
 addEventHandler("onClientPlayerWeaponFire", localPlayer, function(weaponID)
-	if isAutoReloadEnabled and AUTO_RELOAD_WEAPONS[weaponID] then
+	if isAutoReloadEnabled and AUTO_RELOAD_WEAPONS[weaponID] and not getPedOccupiedVehicle(localPlayer) then
 		setPedWeaponSlot(localPlayer, 0)
 		setPedWeaponSlot(localPlayer, currentSlot)
 	end
@@ -22,12 +22,10 @@ addEventHandler("onClientPlayerWeaponSwitch", localPlayer, function(prev, curren
 end)
 
 bindKey("c", "down", function()
-	if not isAutoReloadEnabled or currentWeapon ~= 34 or getPedMoveState(localPlayer) ~= "walk" then
-		return false
+	if isAutoReloadEnabled and currentWeapon == 34 and getPedMoveState(localPlayer) == "walk" then
+		setPedWeaponSlot(localPlayer, 0)
+		setPedWeaponSlot(localPlayer, currentSlot)
 	end
-
-	setPedWeaponSlot(localPlayer, 0)
-	setPedWeaponSlot(localPlayer, currentSlot)
 end)
 
 addEvent("onClientSettingReceive", true)
