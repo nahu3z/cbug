@@ -1,6 +1,6 @@
 local SETTINGS = {}
 local LISTENERS = {}
-local DEFAULT_SETTINGS = {
+local GLITCH_MAP = {
     ["Auto C-Bug"] = "autocbug",
     ["Auto Reload"] = "autoreload",
     ["Crouch Bug"] = "crouchbug",
@@ -24,102 +24,80 @@ local BOOLEANS = {
     ['true'] = true,
 }
 
-local function GET_LISTENERS(tbl)
-	local array = {}
-	local indexID = 0
-
-	for element, _ in pairs(tbl) do
-		local newIndexID = (indexID + 1)
-
-        array[newIndexID] = element
-		indexID = newIndexID
-	end
-
-	return array
+local function settingToBoolean(value)
+    if type(value) == "boolean" then
+        return value
+    end
+    local s = tostring(value):lower()
+    return BOOLEANS[s] or false
 end
 
-local function SEND_SETTING(value, player)
-    triggerClientEvent(player, "onClientSettingReceive", resourceRoot, value)
+local function sendClientSetting(target, value)
+    triggerClientEvent(target, "onClientSettingReceive", resourceRoot, value)
 end
 
-local function TOGGLE_AUTO_CBUG(value)
+local function broadcastSetting(value)
+    for player in pairs(LISTENERS) do
+        if isElement(player) then
+            sendClientSetting(player, value)
+        end
+    end
+end
+
+local function toggleAutoCBug(value)
     local ANIM_BREAKOUT_TIME = "anim_breakout_time"
+    local breakout = value and 0 or false
     local skills = {"poor", "std", "pro"}
 
     for _, skill in ipairs(skills) do
-        for weaponID, _ in pairs(AUTO_CBUG_WEAPONS) do
-            local breakoutTime = value and 0 or getOriginalWeaponProperty(weaponID, skill, ANIM_BREAKOUT_TIME)
+        for weaponID in pairs(AUTO_CBUG_WEAPONS) do
+            local breakoutTime = breakout or getOriginalWeaponProperty(weaponID, skill, ANIM_BREAKOUT_TIME)
             setWeaponProperty(weaponID, skill, ANIM_BREAKOUT_TIME, breakoutTime)
         end
     end
 end
 
-local function SETTING_BOOLEANIZE(value)
-    if type(value) == "boolean" then
-        return value
-    end
-
-    if type(value) == "string" then
-        return BOOLEANS[value] or false
-    end
-end
-
-local function SETTING_SET(setting, value)
+local function setSetting(setting, value)
     if not setting or type(setting) ~= "string" then
         return false
     end
 
-    local dot = setting:find("%.")
-    if dot then
-        setting = setting:sub(dot + 1)
-    end
-
-    local foundSetting = DEFAULT_SETTINGS[setting]
+    local foundSetting = GLITCH_MAP[setting:match("([^%.]+)$")]
     if not foundSetting then
         return false
     end
 
-    value = SETTING_BOOLEANIZE(value)
+    value = settingToBoolean(value)
     SETTINGS[foundSetting] = value
 
     if foundSetting == "autocbug" then
-        TOGGLE_AUTO_CBUG(value)
-        return true
-    end
-
-    local handle = false
-    if foundSetting == "autoreload" then
+        toggleAutoCBug(value)
+    elseif foundSetting == "autoreload" then
+        broadcastSetting(value)
         if value then
             setGlitchEnabled("quickreload", true)
         end
-        SEND_SETTING(value, GET_LISTENERS(LISTENERS))
-        handle = true
     elseif foundSetting == "quickreload" then
-        if SETTINGS["autoreload"] then
-            SEND_SETTING(value, GET_LISTENERS(LISTENERS))
-        end
         setGlitchEnabled(foundSetting, value)
-        handle = true
-    end
-
-    if not handle then
+        if SETTINGS["autoreload"] then
+            broadcastSetting(value)
+        end
+    else
         setGlitchEnabled(foundSetting, value)
     end
 end
 
-addEventHandler("onPlayerResourceStart", root, function(startedResource)
-    if startedResource ~= resource then
-        return false
+addEventHandler("onPlayerResourceStart", root, function(res)
+    if res == resource then
+        local value = SETTINGS["quickreload"] and SETTINGS["autoreload"] or false
+        sendClientSetting(source, value)
+        LISTENERS[source] = true
     end
-    LISTENERS[source] = true
-    local value = SETTINGS["quickreload"] and SETTINGS["autoreload"]
-    triggerClientEvent(source, "onClientSettingReceive", resourceRoot, value)
 end)
 
 addEventHandler("onResourceStart", resourceRoot, function()
-    for setting, glitch in pairs(DEFAULT_SETTINGS) do
-        local value = get(setting)
-        SETTING_SET(setting, value)
+    for setting in pairs(GLITCH_MAP) do
+        setSetting(setting, get(setting))
     end
 end)
 
@@ -128,11 +106,11 @@ addEventHandler("onPlayerQuit", root, function()
 end)
 
 addEventHandler("onResourceStop", resourceRoot, function()
-    for setting, glitch in pairs(DEFAULT_SETTINGS) do
+    for setting, glitch in pairs(GLITCH_MAP) do
         setGlitchEnabled(glitch, false)
     end
 end)
 
 addEventHandler("onSettingChange", resourceRoot, function(setting, _, value)
-    SETTING_SET(setting, value)
+    setSetting(setting, value)
 end)
