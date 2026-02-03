@@ -1,6 +1,6 @@
 <meta>
     <min_mta_version server="1.6.0"></min_mta_version>
-    <info author="NahuEz" name="cbug" version="1.0" type="script"/>
+    <info author="NahuEz" name="cbug" version="1.0" type="script" description="Open source tool for glitch toggling and extra features"/>
 
     <script type="server" src="server.lua"/>
     <script type="client" src="client.lua"/>
