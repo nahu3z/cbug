@@ -1,6 +1,6 @@
 # C-Bug Lua script
 
-MTA:SA Lua script that provides an implementation for glitch toggling and additional features, based on [cbug script by TAPL](https://community.multitheftauto.com/index.php?p=resources&s=details&id=5317).
+MTA:SA Lua script that provides a toggleable glitch implementation and additional features, inspired by [TAPL's cbug script.](https://community.multitheftauto.com/index.php?p=resources&s=details&id=5317)
 
 ### Configuration
 
