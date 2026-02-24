@@ -6,6 +6,11 @@ local AUTO_RELOAD_WEAPONS = {
     [25] = true,
 }
 
+local validMoveState = {
+	["walk"] = true,
+	["fall"] = true,
+}
+
 local currentSlot = getPedWeaponSlot(localPlayer)
 local currentWeapon = getPedWeapon(localPlayer)
 
@@ -22,7 +27,7 @@ addEventHandler("onClientPlayerWeaponSwitch", localPlayer, function(prev, curren
 end)
 
 bindKey("c", "down", function()
-	if isAutoReloadEnabled and currentWeapon == 34 and getPedMoveState(localPlayer) == "walk" then
+	if isAutoReloadEnabled and currentWeapon == 34 and validMoveState[getPedMoveState(localPlayer)] then
 		setPedWeaponSlot(localPlayer, 0)
 		setPedWeaponSlot(localPlayer, currentSlot)
 	end
